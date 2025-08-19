@@ -15,17 +15,20 @@
 </form>
     <h3>Your Todo List</h3>
     <div>
+        
         <table border="1" cellpadding="5">
             <tr><th>Title</th><th>Description</th><th>Date</th><th>Delete</th></tr>
             <tbody id="todo-table">
-            
-
+                <tr id=<?php 'echo $rowid;'?>> </tr>
+                <button hidden type='button' name='delete' onclick=deleteItem($key)>Delete</button>
             <tbody>
-
 
         </table>
         
     </div>
-    <script src="todoBack.js"></script>
+    <p id="delete-result"></p>
+    <br>
+    <div><form action="./backend/logout.php"><input type="submit" name="submit" value="log Out"></form></div>
+    <script src="./script/listAction.js"></script>
 </body>
 </html>

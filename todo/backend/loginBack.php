@@ -13,7 +13,7 @@ if(isset($_POST['submit']))
         $_SESSION['email']=$email;
         $_SESSION['password']=$password;
 
-        header("location:todo.php");
+        header("location:/todo/todo.php");
     }
     else
     {
