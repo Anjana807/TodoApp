@@ -1,10 +1,8 @@
 class Actions
 {
-
 addList(event)
-
 {
-    event.preventDefault();
+    // event.preventDefault();
     const form = event.target;
     const formdata = new FormData(form);
     const xhttp = new XMLHttpRequest();

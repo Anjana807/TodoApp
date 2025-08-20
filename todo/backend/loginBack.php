@@ -1,23 +1,25 @@
 <?php
+
 session_start();
 $email="anjana@gmail.com";
 $password="anjana";
 
-if(isset($_POST['submit']))
+if(isset($_POST['email']) && isset($_POST['password']))
 {
-    $email=$_POST['email'];
-    $password=$_POST['password'];
+    $em=$_POST['email'];
+    $pass=$_POST['password'];
 
-    if(($em==$email) && ($pass=$password))
+    if(($email===$em) && ($password===$pass))
     {
-        $_SESSION['email']=$email;
-        $_SESSION['password']=$password;
+        $_SESSION['email']=$em;
+        $_SESSION['password']=$pass;
 
-        header("location:/todo/todo.php");
+        echo "success";
     }
     else
     {
         echo "invalid email or password";
     }
 }
+
 ?>
