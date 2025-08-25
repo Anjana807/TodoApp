@@ -1,47 +1,95 @@
-class Actions
+$(document).ready(function()
 {
-addList(event)
-{
-    // event.preventDefault();
-    const form = event.target;
-    const formdata = new FormData(form);
-    const xhttp = new XMLHttpRequest();
-    form.reset();
-    xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("todo-table").innerHTML = this.responseText;
-        }
-    };
-    xhttp.open("POST", "./backend/todoList.php", true);
-    xhttp.send(formdata);
-}
 
-deleteItem(index)
-{
-    const row = document.getElementById(index);
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function()
-    {
-        if(this.readyState == 4 && this.status ==200)
+
+$('#todo-form').submit(function(event){
+    event.preventDefault();
+    const formdata = $(this).serialize()+'&action=create';
+
+    
+    $('#todo-form')[0].reset();
+    $.ajax(
         {
-                row.remove(); 
+            type: "POST",
+            url: "./backend/todoList.php",
+            data: formdata,
+            success: function(response){
+                $('#todo-table').html(response);
+            },
+            error:function(){
+                $('#create-result').text(response);
+            }
+        });
+    });
+
+
+
+    $('#todo-table').on('click','.delete-btn',function()
+    {
+    const index = $(this).data('index');
+    $.ajax(
+        {
+            type: "POST",
+            url: "./backend/todoList.php",
+            data: {index:index, action:'delete'},
+            
+            success: function(response)
+            {
+                $('#'+index).remove();
+                
+            },
+            error: function()
+            {
+                $('#delete-result').text("Error deleting record");
+            }
+        })  
+});
+
+
+
+$('#loginform').submit(function (e) {
+       e.preventDefault();
+        var email = $('#email').val();
+        var password = $('#password').val();
+
+        $.ajax(
+            {
+                url: "./backend/todoList.php",
+                method: 'POST',
+                data: {
+                    email: email,
+                    password: password,
+                    action: 'login'
+
+                      },
+                success: function (response) {
+                    if (response.trim() === "success") 
+                    {
+                        window.alert("Welcome " + email);
+                        window.location.href = "/todo/todo.php";
+                    }
+                },
+                error: function () {
+                    $('#result').text("invalid email or password");
+                }
+            });
+    });
+
+    
+
+    $('#logout-form').submit(function()
+{
+    $.ajax({
+        url: "./backend/todoList.php",
+        method: "POST",
+        success: function()
+        {
+            window.location.href="./login.php";
+        },
+        error: function()
+        {
+            alert("Logout failed");
         }
-    };
-    xhttp.open("POST","/todo/backend/deleteBack.php",true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("index="+index); 
-}
-
-}
-
-let actions = new Actions();
-window.addList = function(event)
-{
-    actions.addList(event);
-};
-
-window.deleteItem = function(index)
-{
-    actions.deleteItem(index);
-}
-
+    });
+});
+});

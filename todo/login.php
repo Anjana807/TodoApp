@@ -18,7 +18,7 @@
     <div id="result"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="./script/login.js" defer></script>
+    <script src="./script/listAction.js" defer></script>
 </body>
 </html>
 
