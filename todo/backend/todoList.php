@@ -1,113 +1,129 @@
 <?php
-
 session_start();
+$conn=include 'db.php';
 
 class Actions
 {
 
- public function login($email,$password)
- {
-    
-$email="anjana@gmail.com";
-$password="anjana";
-
-if(isset($_POST['email']) && isset($_POST['password']))
+public static function login($conn)
 {
-    $em=$_POST['email'];
-    $pass=$_POST['password'];
+    $em = $_POST['email'];
+    $pass = $_POST['password'];
+    
+    $stmt = $conn->prepare("select id,email, password from users where email=?");
+    $stmt->bind_param("s",$em);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if(($email===$em) && ($password===$pass))
+    if($result->num_rows>0)
     {
-        $_SESSION['email']=$em;
-        $_SESSION['password']=$pass;
+        $row = $result->fetch_assoc();
+        $email = $row['email'];
+        $password = $row['password'];
+        $userid = $row['id'];
 
-        echo "success";
-    }
-    else
-    {
-        echo "invalid email or password";
+        if($pass === $password && $em === $email)
+        {
+            $_SESSION['id'] = $userid;
+            
+            return "success";
+        }
+        else
+        {
+            return "invalid email or password";
+        }
     }
 }
- }
- public function create()
- {
 
-if($_SERVER["REQUEST_METHOD"]=="POST")
+
+public static function create($conn)
 {
-   
     $title = $_POST['title'];
     $description = $_POST['description'];
     $date = $_POST['date'];
-    if(!isset($_SESSION['todo']))
+    $userid = $_SESSION['id'];
+
+    $stmt = $conn->prepare("insert into todo(userid, title, description, date) values (?, ?, ?, ?)");
+   
+    $stmt->bind_param("isss", $userid, $title, $description, $date);
+
+    if($stmt->execute())
     {
-        $_SESSION['todo']=[];
-
-    }
-        $_SESSION['todo'][]=[
-        'title'=>$title,
-        'description'=>$description,
-        'date'=>$date
-        ];
-
-   foreach($_SESSION['todo'] as $key=>$item)
-   {
-    echo "<tr id='$key'>";
-    echo "<td>".$item['title']."</td>";
-    echo "<td>".$item['description']."</td>";
-    echo "<td>".$item['date']."</td>";
-    echo "<td>";
-    echo "<button type='button' class='delete-btn' name='delete' data-index='$key'>Delete</button>";
-    echo "</tr>";
-   }
-}
-}
-
-public function delete()
-{
-if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['index']))
-{
-    $index = $_POST['index'];
-    if (isset($_SESSION['todo'][$index]))
-    {
-        unset($_SESSION['todo'][$index]);
-        echo "Success";
+       $html= self :: fetchTodo($conn);
+       return $html;
+        
     }
     else
     {
-        echo "item not found";
-    } 
-}
+        return "Error Occured";
+    }
 }
 
-public function logout()
+
+public static function delete($conn)
+{
+    $index = $_POST['index'];
+    $userid = $_SESSION['id'];
+
+    $stmt = $conn->prepare("delete from todo where todoid=? and userid=?");
+    $stmt->bind_param("ii",$index,$userid);
+    $stmt->execute();
+}
+
+public static function logout()
 {
     session_destroy();
-    header("location:/todo/login.php");
-    exit;
 }
 
-}
-
-$actions = new Actions();
-if(isset($_POST['action']))
+public static function fetchTodo($conn)
 {
-    if($_POST['action'] === 'create')
+    $userid = $_SESSION['id'];
+    $result = $conn->prepare("select todoid,title,description,date from todo where userid=?");
+    $result->bind_param("i",$userid);
+    $result->execute();
+    $res = $result->get_result();
+    $html="";
+
+    while($row = $res->fetch_assoc())
     {
-        $actions->create();
+        $html.= "<tr id='{$row['todoid']}'>";
+        $html.= "<td>{$row['title']}</td>";
+        $html.="<td>{$row['description']}</td>";
+        $html.= "<td>{$row['date']}</td>";
+        $html.="<td><button class='delete-btn' data-index='{$row['todoid']}'>Delete</button></td>";
+        $html.= "</tr>";          
     }
-    elseif($_POST['action'] ==='delete')
-    {
-        $actions->delete();
-    }
-    elseif($_POST['action'] === 'login') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $actions->login($email, $password);
+    return $html;
 }
 
-
 }
 
+if(isset( $_POST['action']))
+{
+    if($_POST['action']=="login")
+    {
+        $login = Actions :: login($conn);
+        echo $login;
+    }
+    if($_POST['action']=="create")
+    {
+        $create = Actions :: create($conn);
+        echo $create;
+    }
+    if($_POST['action']=="delete")
+    {
+        Actions :: delete($conn);
+    }
+    if($_POST['action']=="logout")
+    {
+        Actions :: logout();
+    }
+    if($_POST['action']=="fetch")
+    {
+        $fetch = Actions :: fetchTodo($conn);
+        echo $fetch;
+    }
+
+}
 
 ?>
-

@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,6 +23,7 @@
         <table border="1" cellpadding="5">
             <tr><th>Title</th><th>Description</th><th>Date</th><th>Delete</th></tr>
             <tbody id="todo-table">
+            
             </tbody>
             
         </table>
@@ -29,7 +34,8 @@
     <br>
     <div><form id="logout-form">
         <input type="submit" name="submit" value="Log out">
-    </form></div>
+    </form>
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="./script/listAction.js" defer></script>
 </body>
